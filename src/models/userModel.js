@@ -36,7 +36,7 @@ const insertUser = async (user) => {
   try {
     const existingUser = await getUserByMobile(user.mobile_number);
     if (existingUser) {
-      return { error: 'User with this mobile number already exists' };
+      return { msg: 'User with this mobile number already exists',error:true };
     }
 
     const [result] = await db.execute('CALL CreateUser(?, ?, ?, ?, ?, ?)', [
@@ -47,9 +47,9 @@ const insertUser = async (user) => {
       user.created_by,
       user.updated_by
     ]);
-    return { msg: 'User successfully registered' };
+    return { msg: 'User successfully registered' ,error:false};
   } catch (err) {
-    throw { error: 'Database error'};
+    return { msg: 'Database error',error:true};
   }
 };
 
@@ -59,7 +59,7 @@ const getUserByMobile = async (mobile_number) => {
     const user = results[0].find(u => u.mobile_number === mobile_number);
     return user;
   } catch (err) {
-    throw { error: 'Database error'};
+    return { msg: 'Database error',error:true};
   }
 };
 
@@ -72,19 +72,18 @@ const updateUser = async (user) => {
       user.mobile_number,
       user.updated_by
     ]);
-    console.log("k",result);
     return {results:result};
   } catch (err) {
-    return { error: 'Database error' ,results:null};
+    return { results:null};
   }
 };
 
 const deleteUser = async (userId) => {
   try {
-    const [result] = await db.execute('CALL DeleteUser(?)', [userId]);
-    return {results:result};
+    await db.execute('CALL DeleteUser(?)', [userId]);
+    return {error:false};
   } catch (err) {
-    return { error: 'Database error' , results:null };
+    return { error:true };
   }
 };
 
