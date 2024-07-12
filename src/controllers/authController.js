@@ -29,6 +29,7 @@ const registerUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
   const { mobile_number, password } = req.body;
+  console.log("login",req.body)
   const user = await userModel.getUserByMobile(mobile_number);
   if (user) {
     const isPasswordValid = bcrypt.compareSync(password, user.password);
@@ -39,7 +40,7 @@ const loginUser = async (req, res) => {
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
       expiresIn: "1h",
     });
-    res.status(200).send({ msg: "Login successful", token:token,error:false });
+    res.status(200).send({ msg: "Login successful", token:token,error:false ,full_name:`${user.first_name} ${user.last_name}`});
   } else {
     return res.status(404).send({ msg: "User not found" ,error:true});
   }
